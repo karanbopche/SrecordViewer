@@ -1,0 +1,6 @@
+argparse-addons==0.12.0
+bincopy==20.1.0
+humanfriendly==10.0
+pillow==10.4.0
+pyelftools==0.32
+ttkbootstrap==1.14.2
