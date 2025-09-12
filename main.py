@@ -1,7 +1,5 @@
-import bincopy
+from SrecordViewerApp import SrecordViewerApp
 
-import ttkbootstrap as tk
+app = SrecordViewerApp()
 
-root = tk.Window()
-
-root.mainloop()
+app.mainloop()
