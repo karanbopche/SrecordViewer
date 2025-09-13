@@ -9,10 +9,11 @@ class SrecordViewerApp(tk.Window):
     def __init__(self):
         super().__init__()
         self.title("Srecord Viewer")
-        self.geometry("800x600")
+        self.geometry("1200x720")
         self.dataFile = bincopy.BinFile()
         frame = tk.Frame(self)
         frame.pack(side="top", fill="x")
+
         self.fileMenu = tk.Menubutton(frame, text="File")
         self.fileMenu.pack(side="left")
         self.fileMenu.menu = tk.Menu(self.fileMenu)
@@ -25,16 +26,21 @@ class SrecordViewerApp(tk.Window):
         self.fileMenu.menu.add_command(label="Add Microchip Hex", command=self.__AddMicrochipHexFile)
         self.fileMenu.menu.add_command(label="Add Verilog Vmem", command=self.__AddVerilogVmemFile)
         self.fileMenu.menu.add_command(label="Clear", command=self.__ClearView)
+
         frame = tk.LabelFrame(self, text="Sections")
         frame.pack(side="left", fill="y")
-        self.sectionList = tkinter.Listbox(frame, selectmode="single")
+        self.sectionList = tkinter.Listbox(frame, selectmode="single", font=tk.font.Font(family="Courier New"))
         self.sectionList.bind("<<ListboxSelect>>", self.__OnSectionListSelected)
         self.sectionList.pack(side="top", expand=True, fill="both")
+
         frame = tk.LabelFrame(self, text="Data")
         frame.pack(side="right", expand=True, fill="both")
         self.dataText = tk.Text(frame, font=tk.font.Font(family="Courier New"))
-        self.dataText.pack(side="top", expand=True, fill="both")
+        self.dataText.pack(side="left", expand=True, fill="both")
         self.dataText.config(state="disabled")
+        self.dataText.yscrollbar = tk.Scrollbar(frame, command=self.dataText.yview)
+        self.dataText.yscrollbar.pack(side="right", fill="y")
+        self.dataText.config(yscrollcommand=self.dataText.yscrollbar.set)
 
     def UpdateView(self):
         self.sectionList.delete(0, "end")
@@ -61,7 +67,7 @@ class SrecordViewerApp(tk.Window):
             self.dataText.delete("1.0", "end")
             segment = self.dataFile.segments[selectedIndex[0]]
             startAddress = segment.address
-            for offset, data in self.__Chunks(segment.data, 8):
+            for offset, data in self.__Chunks(segment.data, 16):
                 hexStr = " ".join(map(lambda x: f"{x:02X}", data))
                 asciiStr = " ".join(map(lambda x: chr(x) if chr(x).isalnum() else '.' , data))
                 self.dataText.insert("end", f"{startAddress+offset:08X}: {hexStr}  {asciiStr}\n")
