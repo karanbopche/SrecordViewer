@@ -10,7 +10,7 @@ class SrecordViewerApp(tk.Window):
         super().__init__()
         self.title("Srecord Viewer")
         self.geometry("800x600")
-        self.srecordfile = bincopy.BinFile()
+        self.dataFile = bincopy.BinFile()
         frame = tk.Frame(self)
         frame.pack(side="top", fill="x")
         self.fileMenu = tk.Menubutton(frame, text="File")
@@ -38,7 +38,7 @@ class SrecordViewerApp(tk.Window):
 
     def UpdateView(self):
         self.sectionList.delete(0, "end")
-        for segment in self.srecordfile.segments:
+        for segment in self.dataFile.segments:
             self.sectionList.insert("end", f"{segment.address:08x}-{segment.address + len(segment.data):08x}")
         self.sectionList.select_set(0)
         self.__OnSectionListSelected()
@@ -48,6 +48,7 @@ class SrecordViewerApp(tk.Window):
             yield i*n, lst[i:i + n]
 
     def __ClearView(self):
+        self.dataFile = bincopy.BinFile()
         self.sectionList.delete(0, "end")
         self.dataText.config(state="normal")
         self.dataText.delete("1.0", "end")
@@ -58,7 +59,7 @@ class SrecordViewerApp(tk.Window):
         if selectedIndex:
             self.dataText.config(state="normal")
             self.dataText.delete("1.0", "end")
-            segment = self.srecordfile.segments[selectedIndex[0]]
+            segment = self.dataFile.segments[selectedIndex[0]]
             startAddress = segment.address
             for offset, data in self.__Chunks(segment.data, 8):
                 hexStr = " ".join(map(lambda x: f"{x:02X}", data))
@@ -76,22 +77,22 @@ class SrecordViewerApp(tk.Window):
         )
         for file in files:
             try:
-                self.srecordfile.add_ihex_file(file, overwrite=False)
+                self.dataFile.add_ihex_file(file, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_ihex_file(file, overwrite=True)
+                    self.dataFile.add_ihex_file(file, overwrite=True)
         self.UpdateView()
     
     def __AddMicrochipHexFile(self):
         files = filedialog.askopenfilenames(title="Select File")
         for file in files:
             try:
-                self.srecordfile.add_microchip_hex_file(file, overwrite=False)
+                self.dataFile.add_microchip_hex_file(file, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_microchip_hex_file(file, overwrite=True)
+                    self.dataFile.add_microchip_hex_file(file, overwrite=True)
         self.UpdateView()
 
     def __AddTiTextFile(self):
@@ -104,11 +105,11 @@ class SrecordViewerApp(tk.Window):
         )
         for file in files:
             try:
-                self.srecordfile.add_ti_txt_file(file, overwrite=False)
+                self.dataFile.add_ti_txt_file(file, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_ti_txt_file(file, overwrite=True)
+                    self.dataFile.add_ti_txt_file(file, overwrite=True)
         self.UpdateView()
 
     def __AddVerilogVmemFile(self):
@@ -120,11 +121,11 @@ class SrecordViewerApp(tk.Window):
         )
         for file in files:
             try:
-                self.srecordfile.add_verilog_vmem_file(file, overwrite=False)
+                self.dataFile.add_verilog_vmem_file(file, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_verilog_vmem_file(file, overwrite=True)
+                    self.dataFile.add_verilog_vmem_file(file, overwrite=True)
         self.UpdateView()
 
     def __AddElfFile(self):
@@ -137,11 +138,11 @@ class SrecordViewerApp(tk.Window):
         )
         for file in files:
             try:
-                self.srecordfile.add_elf_file(file, overwrite=False)
+                self.dataFile.add_elf_file(file, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_elf_file(file, overwrite=True)
+                    self.dataFile.add_elf_file(file, overwrite=True)
         self.UpdateView()
 
     def __AddBinaryFile(self):
@@ -149,11 +150,11 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             address = simpledialog.askinteger("Load Address", "Address of binary data")
             try:
-                self.srecordfile.add_binary_file(file, address=address, overwrite=False)
+                self.dataFile.add_binary_file(file, address=address, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_ihex_file(file, address=address, overwrite=True)
+                    self.dataFile.add_ihex_file(file, address=address, overwrite=True)
         self.UpdateView()
     
 
@@ -167,9 +168,9 @@ class SrecordViewerApp(tk.Window):
         )
         for file in files:
             try:
-                self.srecordfile.add_srec_file(file, overwrite=False)
+                self.dataFile.add_srec_file(file, overwrite=False)
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
-                    self.srecordfile.add_srec_file(file, overwrite=True)
+                    self.dataFile.add_srec_file(file, overwrite=True)
         self.UpdateView()
