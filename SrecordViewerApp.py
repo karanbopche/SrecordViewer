@@ -1,6 +1,6 @@
 import ttkbootstrap as tk
 import bincopy
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog
 import tkinter
 from tkinter.messagebox import askyesno
 
@@ -18,6 +18,12 @@ class SrecordViewerApp(tk.Window):
         self.fileMenu.menu = tk.Menu(self.fileMenu)
         self.fileMenu["menu"] = self.fileMenu.menu
         self.fileMenu.menu.add_command(label="Add Srecord", command=self.__AddSrecordFile)
+        self.fileMenu.menu.add_command(label="Add IHex", command=self.__AddIhexFile)
+        self.fileMenu.menu.add_command(label="Add ELF", command=self.__AddElfFile)
+        self.fileMenu.menu.add_command(label="Add Bin", command=self.__AddBinaryFile)
+        self.fileMenu.menu.add_command(label="Add Ti Text", command=self.__AddTiTextFile)
+        self.fileMenu.menu.add_command(label="Add Microchip Hex", command=self.__AddMicrochipHexFile)
+        self.fileMenu.menu.add_command(label="Add Verilog Vmem", command=self.__AddVerilogVmemFile)
         self.fileMenu.menu.add_command(label="Clear", command=self.__ClearView)
         frame = tk.LabelFrame(self, text="Sections")
         frame.pack(side="left", fill="y")
@@ -60,8 +66,105 @@ class SrecordViewerApp(tk.Window):
                 self.dataText.insert("end", f"{startAddress+offset:08X}: {hexStr}  {asciiStr}\n")
             self.dataText.config(state="disabled")
 
+    def __AddIhexFile(self):
+        files = filedialog.askopenfilenames(
+            title="Select File", 
+            filetypes=[
+                ("file", "*.hex *.ihex"),
+                ("all files", "*.*"),
+            ],
+        )
+        for file in files:
+            try:
+                self.srecordfile.add_ihex_file(file, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_ihex_file(file, overwrite=True)
+        self.UpdateView()
+    
+    def __AddMicrochipHexFile(self):
+        files = filedialog.askopenfilenames(title="Select File")
+        for file in files:
+            try:
+                self.srecordfile.add_microchip_hex_file(file, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_microchip_hex_file(file, overwrite=True)
+        self.UpdateView()
+
+    def __AddTiTextFile(self):
+        files = filedialog.askopenfilenames(
+            title="Select File", 
+            filetypes=[
+                ("file", "*.hex *.s19 *.ptp *.bin *.elf"),
+                ("all files", "*.*"),
+            ],
+        )
+        for file in files:
+            try:
+                self.srecordfile.add_ti_txt_file(file, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_ti_txt_file(file, overwrite=True)
+        self.UpdateView()
+
+    def __AddVerilogVmemFile(self):
+        files = filedialog.askopenfilenames(
+            title="Select File", 
+            filetypes=[
+                ("all files", "*.*"),
+            ],
+        )
+        for file in files:
+            try:
+                self.srecordfile.add_verilog_vmem_file(file, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_verilog_vmem_file(file, overwrite=True)
+        self.UpdateView()
+
+    def __AddElfFile(self):
+        files = filedialog.askopenfilenames(
+            title="Select File", 
+            filetypes=[
+                ("file", "*.elf"),
+                ("all files", "*.*"),
+            ],
+        )
+        for file in files:
+            try:
+                self.srecordfile.add_elf_file(file, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_elf_file(file, overwrite=True)
+        self.UpdateView()
+
+    def __AddBinaryFile(self):
+        files = filedialog.askopenfilenames(title="Select File")
+        for file in files:
+            address = simpledialog.askinteger("Load Address", "Address of binary data")
+            try:
+                self.srecordfile.add_binary_file(file, address=address, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_ihex_file(file, address=address, overwrite=True)
+        self.UpdateView()
+    
+
     def __AddSrecordFile(self):
-        files = filedialog.askopenfilenames()
+        files = filedialog.askopenfilenames(
+            title="Select File", 
+            filetypes=[
+                ("file", "*.s19"),
+                ("all files", "*.*"),
+            ],
+        )
         for file in files:
             try:
                 self.srecordfile.add_srec_file(file, overwrite=False)
