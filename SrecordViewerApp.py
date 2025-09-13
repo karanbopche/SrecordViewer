@@ -2,6 +2,8 @@ import ttkbootstrap as tk
 import bincopy
 from tkinter import filedialog
 import tkinter
+from tkinter.messagebox import askyesno
+
 
 class SrecordViewerApp(tk.Window):
     def __init__(self):
@@ -46,10 +48,10 @@ class SrecordViewerApp(tk.Window):
         self.dataText.config(state="disabled")
 
     def __OnSectionListSelected(self, *args):
-        self.dataText.config(state="normal")
-        self.dataText.delete("1.0", "end")
         selectedIndex = self.sectionList.curselection()
         if selectedIndex:
+            self.dataText.config(state="normal")
+            self.dataText.delete("1.0", "end")
             segment = self.srecordfile.segments[selectedIndex[0]]
             startAddress = segment.address
             for offset, data in self.__Chunks(segment.data, 8):
@@ -59,7 +61,12 @@ class SrecordViewerApp(tk.Window):
             self.dataText.config(state="disabled")
 
     def __AddSrecordFile(self):
-        file = filedialog.askopenfilename()
-        if file:
-            self.srecordfile.add_srec_file(file)
-            self.UpdateView()
+        files = filedialog.askopenfilenames()
+        for file in files:
+            try:
+                self.srecordfile.add_srec_file(file, overwrite=False)
+            except bincopy.AddDataError:
+                answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
+                if answer:
+                    self.srecordfile.add_srec_file(file, overwrite=True)
+        self.UpdateView()
