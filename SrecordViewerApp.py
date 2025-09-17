@@ -1,6 +1,6 @@
 import ttkbootstrap as tk
 import bincopy
-from tkinter import filedialog, simpledialog
+from tkinter import filedialog, simpledialog, messagebox
 import tkinter
 from tkinter.messagebox import askyesno
 
@@ -10,6 +10,7 @@ class SrecordViewerApp(tk.Window):
         super().__init__()
         self.title("Srecord Viewer")
         self.geometry("1200x720")
+        self.custom_exception_handler = self.custom_exception_handler
         self.dataFile = bincopy.BinFile()
         frame = tk.Frame(self)
         frame.pack(side="top", fill="x")
@@ -48,6 +49,11 @@ class SrecordViewerApp(tk.Window):
             self.sectionList.insert("end", f"{segment.address:08x}-{segment.address + len(segment.data):08x}")
         self.sectionList.select_set(0)
         self.__OnSectionListSelected()
+
+    def custom_exception_handler(exc_type, exc_value, exc_traceback):
+        messagebox.showerror("Unhandled Exception", 
+                         f"An unhandled error occurred: {exc_value}\n"
+                         f"Type: {exc_type.__name__}")
 
     def __Chunks(self, lst, n):
         for i in range(0, len(lst), n):
@@ -162,7 +168,6 @@ class SrecordViewerApp(tk.Window):
                 if answer:
                     self.dataFile.add_ihex_file(file, address=address, overwrite=True)
         self.UpdateView()
-    
 
     def __AddSrecordFile(self):
         files = filedialog.askopenfilenames(
