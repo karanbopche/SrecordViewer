@@ -57,7 +57,7 @@ class SrecordViewerApp(tk.Window):
 
     def __Chunks(self, lst, n):
         for i in range(0, len(lst), n):
-            yield i*n, lst[i:i + n]
+            yield i, lst[i:i + n]
 
     def __ClearView(self):
         self.dataFile = bincopy.BinFile()
