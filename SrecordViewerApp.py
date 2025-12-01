@@ -1,3 +1,4 @@
+import os
 import ttkbootstrap as tk
 import bincopy
 from tkinter import filedialog, simpledialog, messagebox
@@ -14,6 +15,7 @@ class SrecordViewerApp(tk.Window):
         self.dataFile = bincopy.BinFile()
         frame = tk.Frame(self)
         frame.pack(side="top", fill="x")
+        self.loadedFiles = []
 
         self.fileMenu = tk.Menubutton(frame, text="File")
         self.fileMenu.pack(side="left")
@@ -44,6 +46,7 @@ class SrecordViewerApp(tk.Window):
         self.dataText.config(yscrollcommand=self.dataText.yscrollbar.set)
 
     def UpdateView(self):
+        self.title("Srecord Viewer - " + ", ".join(self.loadedFiles))
         self.sectionList.delete(0, "end")
         for segment in self.dataFile.segments:
             self.sectionList.insert("end", f"{segment.address:08x}-{segment.address + len(segment.data):08x}")
@@ -60,6 +63,7 @@ class SrecordViewerApp(tk.Window):
             yield i, lst[i:i + n]
 
     def __ClearView(self):
+        self.loadedFiles = []
         self.dataFile = bincopy.BinFile()
         self.sectionList.delete(0, "end")
         self.dataText.config(state="normal")
@@ -90,6 +94,7 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             try:
                 self.dataFile.add_ihex_file(file, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
@@ -101,6 +106,7 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             try:
                 self.dataFile.add_microchip_hex_file(file, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
@@ -118,6 +124,7 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             try:
                 self.dataFile.add_ti_txt_file(file, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
@@ -134,6 +141,7 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             try:
                 self.dataFile.add_verilog_vmem_file(file, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
@@ -151,6 +159,7 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             try:
                 self.dataFile.add_elf_file(file, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
@@ -163,6 +172,7 @@ class SrecordViewerApp(tk.Window):
             address = simpledialog.askinteger("Load Address", "Address of binary data")
             try:
                 self.dataFile.add_binary_file(file, address=address, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
@@ -180,6 +190,7 @@ class SrecordViewerApp(tk.Window):
         for file in files:
             try:
                 self.dataFile.add_srec_file(file, overwrite=False)
+                self.loadedFiles.append(os.path.basename(file))
             except bincopy.AddDataError:
                 answer = askyesno("Overlapping Data", f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?")
                 if answer:
