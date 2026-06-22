@@ -1,0 +1,22 @@
+[project]
+name = "image_viewer"
+version = "2.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "argparse-addons==0.12.0",
+    "bincopy==20.1.0",
+    "humanfriendly==10.0",
+    "pillow==10.4.0",
+    "pyelftools==0.32",
+    "ttkbootstrap==1.14.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+image_viewer = "image_viewer:main"
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "hatch_build.py"
