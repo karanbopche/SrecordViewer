@@ -1,4 +1,5 @@
 import os
+from elftools import elf
 import ttkbootstrap as tk
 import bincopy
 from tkinter import filedialog, simpledialog, messagebox
@@ -209,17 +210,18 @@ class ImageViewerApp(tk.Window):
             ],
         )
         for file in files:
-            try:
-                self.dataFile.add_elf_file(file, overwrite=False)
-                self.__update_section_file_mappings(self.dataFile, str(file))
-                self.loadedFiles.append(os.path.basename(file))
-            except bincopy.AddDataError:
-                answer = askyesno(
-                    "Overlapping Data",
-                    f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?",
-                )
-                if answer:
-                    self.dataFile.add_elf_file(file, overwrite=True)
+            with open(file, "rb") as elf:
+                try:
+                    self.dataFile.add_elf(elf.read(), overwrite=False)
+                    self.__update_section_file_mappings(self.dataFile, str(file))
+                    self.loadedFiles.append(os.path.basename(file))
+                except bincopy.AddDataError:
+                    answer = askyesno(
+                        "Overlapping Data",
+                        f"File contains data which overlaps with existing data\n\nfilename:{file}\n\nOverride data?",
+                    )
+                    if answer:
+                        self.dataFile.add_elf(elf.read(), overwrite=True)
         self.UpdateView()
 
     def __AddBinaryFile(self):
