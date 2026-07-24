@@ -1,0 +1,33 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published] # Triggers when you create a new GitHub Release
+
+jobs:
+  pypi-publish:
+    name: Build and publish Python package
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi # Matches the environment name set on PyPI
+      url: https://pypi.org # Replace with your package name
+    permissions:
+      id-token: write # Required for OIDC trusted publishing authentication
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5 # Automatically installs the latest uv tool
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml" # Pulls the runtime version from your project config
+
+      - name: Build package distributions
+        run: uv build
+
+      - name: Publish package to PyPI
+        run: uv publish
