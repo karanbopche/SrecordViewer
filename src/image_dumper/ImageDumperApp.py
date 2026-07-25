@@ -7,7 +7,7 @@ import tkinter
 from tkinter.messagebox import askyesno
 
 
-class ImageViewerApp(tk.Window):
+class ImageDumperApp(tk.Window):
     def __init__(self):
         super().__init__()
         self.title("Srecord Viewer")
@@ -250,7 +250,7 @@ class ImageViewerApp(tk.Window):
         files = filedialog.askopenfilenames(
             title="Select File",
             filetypes=[
-                ("file", "*.s19"),
+                ("file", "*.s19 *.ptp"),
                 ("all files", "*.*"),
             ],
         )
@@ -269,3 +269,7 @@ class ImageViewerApp(tk.Window):
                 if answer:
                     self.dataFile.add_srec_file(file, overwrite=True)
         self.UpdateView()
+
+
+def main() -> None:
+    ImageDumperApp().mainloop()

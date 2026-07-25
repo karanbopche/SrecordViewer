@@ -1,7 +1,7 @@
 [project]
-name = "image-dumper"
-version = "3.0.0"
-requires-python = ">=3.11"
+name = "image_dumper"
+version = "1.0.0"
+requires-python = ">=3.10"
 dependencies = [
     "argparse-addons==0.12.0",
     "bincopy==20.1.0",
@@ -12,11 +12,9 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.0,<0.9.0"]
+build-backend = "uv_build"
+
 
 [project.scripts]
-image_viewer = "image_viewer:main"
-
-[tool.hatch.build.targets.wheel.hooks.custom]
-path = "hatch_build.py"
+image_dumper = "image_dumper:main"
